@@ -9,7 +9,6 @@ package com.taurus;
 import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -58,20 +57,21 @@ public class SwerveChassis
         RobotVelocity = new SwerveVector(0, 0);
         RobotRotation = 0;
  
-        RobotGyro = new Gyro(SwerveConstants.GyroPin);
-        
-        ChassisPID = new PIDController(ChassisP, ChassisI, ChassisD, RobotGyro, ChassisOutput);
-        ChassisPID.setContinuous();
-        ChassisPID.setInputRange(0, 360);
-        ChassisPID.setOutputRange(-1,  1);
-        ChassisPID.enable();
+//        RobotGyro = new Gyro(SwerveConstants.GyroPin);
+//        
+//        ChassisPID = new PIDController(ChassisP, ChassisI, ChassisD, RobotGyro, ChassisOutput);
+//        ChassisPID.setContinuous();
+//        ChassisPID.setInputRange(0, 360);
+//        ChassisPID.setOutputRange(-1,  1);
+//        ChassisPID.enable();
         
         Wheels = new SwerveWheel[SwerveConstants.WheelCount];
  
         // {x, y}, Orientation, {EncoderA, EncoderB}, Pot, Drive, Angle, Shifter
         for(int i = 0; i < SwerveConstants.WheelCount; i++)
         {
-            Wheels[i] = new SwerveWheel(SwerveConstants.WheelPositions[i],
+            Wheels[i] = new SwerveWheel("wheel" + i,
+                                        SwerveConstants.WheelPositions[i],
                                         SwerveConstants.WheelOrientationAngle[i],
                                         SwerveConstants.WheelEncoderPins[i],
                                         SwerveConstants.WheelPotPins[i],
@@ -182,14 +182,21 @@ public class SwerveChassis
                 MaxWantedVeloc = WheelsUnscaled[i].getMag();
             }
         }
+        
+        double Ratio = MaxAvailableVelocity / MaxWantedVeloc;
+        
+        if (Ratio > 1)
+        {
+            Ratio = 1;
+        }
 
         // Allow for values below maximum velocity
         for(int i = 0; i < SwerveConstants.WheelCount; i++)
         {
             //scale values for each wheel
-            WheelsScaled[i] = new SwerveVector(WheelsUnscaled[i].getMag() * (MaxAvailableVelocity / MaxWantedVeloc),
-                                               WheelsUnscaled[i].getAngle(),
-                                               true);
+            WheelsScaled[i] = SwerveVector.NewFromMagAngle(
+                    WheelsUnscaled[i].getMag() * Ratio,
+                    WheelsUnscaled[i].getAngle());
 
             //then set it
             WheelsActual[i] = Wheels[i].setDesired(WheelsScaled[i]);
