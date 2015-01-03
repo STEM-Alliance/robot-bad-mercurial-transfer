@@ -5,104 +5,227 @@
  */
 
 package com.taurus;
+
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- *
- * @author Taurus Robotics
- * handle motor outputs and feedback for an individual wheel
+ * Handle motor outputs and feedback for an individual wheel
+ * @author Team 4818 Taurus Robotics
  */
 public class SwerveWheel
 {
-    private SwervePoint WheelPosition;     // wheel location from center of robot
-    private SwervePoint WheelVelocity;     // wheel speed, x and y vals, hypotenuse val, angle
+    String Name;
+
+    // wheel stuff
+    private SwerveVector WheelPosition; // wheel location from center of robot
+    private SwerveVector WheelDesired; // wheel speed, x and y vals, hypotenuse
+                                       // val, angle
+    private SwerveVector WheelActual; // wheel speed, x and y vals, hypotenuse
+                                      // val, angle
+    private boolean HighGear;
+    
+    // motor
     private Victor MotorDrive;
     private Victor MotorAngle;
-    private SwerveArduino Arduino;
+
+    // sensor
+    private AnalogPotentiometer AnglePot;
+    private Encoder DriveEncoder;
+
+    // controller
+    private SwerveAngleController AngleController;
+    private VelocityCalculator DriveEncoderFilter;
+    private PIController DriveEncoderController;
+
+    private static final double DriveP = 0.3;
+    private static final double DriveTI = 0.5;  // seconds needed to equal a P term contribution
+    private static final double DriveI = 1 / DriveTI;
+
+    // potentiometer calculation
+    private static final double PotentiometerMax = 4.6;
+    private static final double PotentiometerScale = 360 / PotentiometerMax; 
     
-    public double AngleP = 1;
-    public double AngleI = 0;
-    public double AngleD = 0;
-    public double DriveP = 1;
-    public double DriveI = 0;
-    public double DriveD = 0;
+    // deadband
+    private static final double MinSpeed = 0.1;
+
+    /**
+     * Set up the wheel with the specific IO and orientation on the robot
+     * @param name Name of the wheel for display purposes
+     * @param Position Wheel position relative to robot center as array
+     * @param Orientation Angle of wheel relative to robot 0 angle in degrees
+     * @param EncoderPins Pins for Speed Encoder input as array
+     * @param PotPin Pin for Angle Potentiometer
+     * @param DrivePin Pin for drive motor controller
+     * @param AnglePin Pin for angle motor controller
+     */
+    public SwerveWheel(String name, double[] Position, double Orientation, int[] EncoderPins,
+            int PotPin, int DrivePin, int AnglePin)
+    {
+        Name = name;
+
+        WheelPosition = new SwerveVector(Position);
+        WheelActual = new SwerveVector(0, 0);
+        WheelDesired = new SwerveVector(0, 0);
+        MotorDrive = new Victor(DrivePin);
+        MotorAngle = new Victor(AnglePin);
+        HighGear = true;
+
+        DriveEncoder = new Encoder(EncoderPins[0], EncoderPins[1]);
+        DriveEncoder.setDistancePerPulse(SwerveConstants.DriveEncoderRate);
+        DriveEncoder.start();
+        
+        DriveEncoderFilter = new VelocityCalculator();
+        DriveEncoderController = new PIController(DriveP, DriveI, 1.0);
+
+        AnglePot = new AnalogPotentiometer(PotPin, PotentiometerScale, Orientation);
+        AngleController = new SwerveAngleController(name + ".ctl");
+    }
+
+    /** 
+     * Set the desired wheel vector, auto updates the PID controllers
+     * @param NewDesired
+     * @param HighGear
+     * @return Actual vector reading of wheel
+     */
+    public SwerveVector setDesired(SwerveVector NewDesired, boolean NewHighGear)
+    {
+        WheelDesired = NewDesired;
+        HighGear = NewHighGear;
+
+        return updateTask();
+    }
+
+    /** 
+     * Get the desired vector (velocity and rotation) of this wheel instance
+     * @return Desired vector
+     */
+    public SwerveVector getDesired()
+    {
+        return WheelDesired;
+    }
+
+    /** 
+     * Get the actual vector reading of the wheel
+     * @return Actual vector reading of wheel
+     */
+    public SwerveVector getActual()
+    {
+        WheelActual.setMagAngle(DriveEncoder.getRate(), AnglePot.get());
+        return WheelActual;
+    }
+
+    /** 
+     * Get the wheel's position relative to robot center
+     * @return Wheel position
+     */
+    public SwerveVector getPosition()
+    {
+        return WheelPosition;
+    }
     
-    private SwervePIDSource AngleSource;
-    private PIDController AnglePID;
+    /**
+     * Get whether the wheel is in high gear or low gear
+     * @return Whether the wheel is in high gear
+     */
+    public boolean getIsHighGear()
+    {
+        return HighGear;
+    }
+
+    /** 
+     * invoke updating the actual values and the motor outputs
+     * called automatically from setDesired()
+     * @return Actual vector reading of wheel
+     */
+    private SwerveVector updateTask()
+    {
+        boolean reverse = updateAngleMotor();
+        updateDriveMotor(reverse);
+
+        SmartDashboard.putNumber(Name + ".desired.mag", WheelDesired.getMag());
+        SmartDashboard.putNumber(Name + ".desired.ang", WheelDesired.getAngle());
+        
+        return getActual();
+    }
     
-    private SwervePIDSource DriveSource;
-    private PIDController DrivePID;
-    // constructor
-    // x and y are location relative to robot center
-    // Address is slave address of arduino
-    public SwerveWheel(double x, double y, int Address, int Drive, int Angle)
+    /** 
+     * Update the angle motor based on the desired angle
+     * Called from updateTask() 
+     * @return Whether the drive motor should run in the opposite direction 
+     */
+    private boolean updateAngleMotor()
     {
-        WheelPosition = new SwervePoint(x, y);
-        WheelVelocity = new SwervePoint(0, 0);
-        MotorDrive = new Victor(Drive);
-        MotorAngle = new Victor(Angle);
-        Arduino = new SwerveArduino(Address);
+        // Update the angle controller.
+        AngleController.update(WheelDesired.getAngle(), AnglePot.get());
         
-        //TODO need to implement this
-        AngleSource = new SwervePIDSource();
-        DriveSource = new SwervePIDSource();
+        // Control the wheel angle.
+        if (WheelDesired.getMag() > MinSpeed)
+        {
+            MotorAngle.set(-AngleController.getMotorSpeed());
+        }
+        else
+        {
+            // Too slow, do nothing
+            AngleController.resetIntegral();
+            MotorAngle.set(0);
+        }
         
-        AnglePID = new PIDController(AngleP, AngleI, AngleD, AngleSource, MotorAngle);
-        AnglePID.setContinuous();
-        AnglePID.setInputRange(0, 360);
-        //Maybe set outputRange Depending on Victors 
-        AnglePID.enable();
-        
-        DrivePID = new PIDController(DriveP, DriveI, DriveD, DriveSource, MotorDrive);
-        DrivePID.setInputRange(-1, 1);
-        //MAybe set output range depending on stuff
-        DrivePID.enable();
+        return AngleController.isReverseMotor();
     }
- 
-    // set the velocity and desired rotation of the wheel using the whole robot's desired values
-    // auto calculates what is needed for this specific wheel instance
-    // return: actual reading from wheel
-    public SwervePoint Set(SwervePoint RobotVelocity, double RobotRotation)
+    
+    /** 
+     * Update the drive motor based on the desired speed and whether to run in reverse
+     * Called from updateTask() 
+     */
+    private void updateDriveMotor(boolean reverse)
     {
-        WheelVelocity = new SwervePoint(RobotVelocity.X() - RobotRotation * WheelPosition.Y(),
-                                        RobotVelocity.Y() + RobotRotation * WheelPosition.X());
- 
-        return UpdateTask();
-    }
- 
-    // get the desired/requested velocity and rotation of this wheel instance
-    public SwervePoint GetDesired()
-    {
-        return WheelVelocity;
-    }
- 
-    // get the actual velocity and rotation of this wheel instance
-    // requires the UpdateTask to be called prior
-    public SwervePoint GetActual()
-    {
-        return Arduino.Get();
-    }
- 
-    // Manually invoke updating the actual values and the motor outputs
-    // called automatically from Set()
-    // return: actual reading from wheel
-    public SwervePoint UpdateTask()
-    {
-        Arduino.Update();
- 
-        // handle motor outputs relative to the new readings
-        // PID control here
-        AngleSource.pidSet(Arduino.Get().Angle());
-        AnglePID.setPID(AngleP, AngleI, AngleD);
-        AnglePID.setSetpoint(WheelVelocity.Angle());
+        double time = Timer.getFPGATimestamp();
+
+        // Control the wheel speed.
+        double driveMotorSpeed = WheelDesired.getMag();
         
-        DriveSource.pidSet(Arduino.Get().H());
-        DrivePID.setPID(DriveP, DriveI, DriveD);
-        DrivePID.setSetpoint(WheelVelocity.H());
+        // Reverse the motor output if the angle controller is taking advantage of rotational symmetry.
+        if (reverse)
+            driveMotorSpeed = -driveMotorSpeed;
         
-        return Arduino.Get();
+        // Update the velocity estimate.
+        DriveEncoderFilter.updateEstimate(DriveEncoder.getDistance(), time);
+
+        // Determine the max velocity.
+        double driveEncoderMaxVelocity;
+        if (HighGear)
+        {
+            driveEncoderMaxVelocity = SwerveConstants.DriveHighGearMaxVelocity;
+        }
+        else
+        {
+            driveEncoderMaxVelocity = SwerveConstants.DriveLowGearMaxVelocity;
+        }
+        
+        // Scale the velocity estimate.
+        double driveEncoderVelocityScaled = DriveEncoderFilter.getVelocity() / driveEncoderMaxVelocity;
+        driveEncoderVelocityScaled = Utilities.clampToRange(driveEncoderVelocityScaled, -1, 1);
+        
+        // Update the wheel speed controller.
+        double driveMotorControllerError = driveMotorSpeed - driveEncoderVelocityScaled;
+        double driveMotorControllerOutput = DriveEncoderController.update(driveMotorControllerError, time);
+        
+        // Control the motor.
+        double driveMotorOutput = driveMotorSpeed + driveMotorControllerOutput;
+        
+        MotorDrive.set(driveMotorOutput);
+        //MotorDrive.set(driveMotorSpeed);
+
+        SmartDashboard.putNumber(Name + ".position.raw", DriveEncoder.getRaw());
+        SmartDashboard.putNumber(Name + ".position.scaled", DriveEncoder.getDistance());
+        SmartDashboard.putNumber(Name + ".speed.filtered", DriveEncoderFilter.getVelocity());
+        SmartDashboard.putNumber(Name + ".speed.scaled", driveEncoderVelocityScaled);
+        SmartDashboard.putNumber(Name + ".speed.error", driveMotorControllerError);
+        SmartDashboard.putNumber(Name + ".speed.adjust", driveMotorControllerOutput);
+        SmartDashboard.putNumber(Name + ".speed.motor", driveMotorOutput);
     }
 }

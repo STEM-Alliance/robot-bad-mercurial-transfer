@@ -7,7 +7,7 @@ import java.io.PrintStream;
  * text data to the console but it can be further implemented later to send
  * actual quantitative data to the dashboard.
  *
- * @author Tanner Danzey < arkaniad AT gmail DOT com >
+ * @author Tanner Danzey
  */
 public class Logger {
 
@@ -20,7 +20,6 @@ public class Logger {
     private final String warnTag = "[-!-]";
     private final String errTag = "[!!!]";
     private final String infoTag = "[---]";
-    private final String calloutTag = ">>>>>";
 
     /**
      * Instantiate the logger.
