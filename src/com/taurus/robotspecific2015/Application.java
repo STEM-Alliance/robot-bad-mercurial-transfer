@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.Timer;
 public class Application extends com.taurus.Application {
     Lift lift;
     Car TestModeCar;
+   Ejector TestModeEjector;
+   Sensor TestModeToteIntakeSensor;
 
     public static enum AUTO_STATE_MACHINE {
         DRIVE_FOR, DRIVE_STOP, DRIVE_RIGHT, AUTO_END,
@@ -19,6 +21,8 @@ public class Application extends com.taurus.Application {
 
     public Application()
     {
+      super.Application();  // Initialize anything in the super class constructor
+      
         lift = new Lift();
         TestModeCar = lift.LiftCar;
         
@@ -46,7 +50,7 @@ public class Application extends com.taurus.Application {
 
         if (button1)
         {
-            lift.AddToteToStack();
+         lift.AddChuteToteToStack();
         }
         else if (button2)
         {
@@ -121,7 +125,9 @@ public class Application extends com.taurus.Application {
 
     public void TestModeInitRobotSpecific()
     {
-
+      TestModeCar = lift.LiftCar;
+      TestModeEjector = lift.StackEjector;
+      TestModeToteIntakeSensor = lift.ToteIntakeSensor;
     }
 
     public void TestModePeriodicRobotSpecific()
@@ -178,20 +184,30 @@ public class Application extends com.taurus.Application {
             case Constants.TEST_MODE_CAR:
                 if (button1)
                 {
-                    TestModeCar.Motors.set(Constants.MOTOR_SPEED_CAR
+               TestModeCar.Motors.Set(Constants.MOTOR_SPEED_CAR1 * Constants.MOTOR_DIRECTION_FORWARD);
                             * Constants.MOTOR_DIRECTION_FORWARD);
                 }
                 else if (button2)
                 {
-                    TestModeCar.Motors.set(Constants.MOTOR_SPEED_CAR
-                            * Constants.MOTOR_DIRECTION_BACKWARD);
+               TestModeCar.Motors.Set(Constants.MOTOR_SPEED_CAR1 * Constants.MOTOR_DIRECTION_BACKWARD);
+            }
+            else if (button3)
+            {
+               TestModeEjector.Motors.set(Constants.SCALING_EJECTOR * Constants.MOTOR_DIRECTION_FORWARD);
+            }
+            else if (button4)
+            {
+               TestModeEjector.Motors.set(Constants.SCALING_EJECTOR * Constants.MOTOR_DIRECTION_BACKWARD);
                 }
                 break;
             default:
                 break;
         }
         // TODO: Get the value of one sensor and report that somehow
-        // (Smartdashboard, print, etc)
+      if (TestModeToteIntakeSensor.IsOn())
+      {
+         // TODO: Update smartdashboard or however we show sensors
+      }
     }
 
     public void TestModeDeInitRobotSpecific()
