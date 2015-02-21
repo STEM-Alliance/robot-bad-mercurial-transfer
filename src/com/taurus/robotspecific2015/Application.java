@@ -1,5 +1,7 @@
 package com.taurus.robotspecific2015;
 
+import java.util.ArrayList;
+
 import com.taurus.robotspecific2015.Constants.*;
 
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -22,6 +24,8 @@ public class Application extends com.taurus.Application {
 //    private boolean CompressorChargedOnce;
 //    private Compressor compressor;
 //    private double CompressorTimer;
+    
+    private LEDs leds;
 
     public Application()
     {
@@ -69,16 +73,27 @@ public class Application extends com.taurus.Application {
         testChooser.addDefault("Pneumatics/Motors", Integer.valueOf(Constants.TEST_MODE_PNEUMATIC));
         testChooser.addObject("Actuator", Integer.valueOf(Constants.TEST_MODE_ACTUATOR));
         SmartDashboard.putData("Test", testChooser);
+        
+        leds = new LEDs();
+        leds.start();
     }
 
     public void TeleopInitRobotSpecific()
     {
+        ArrayList<Color[]> colors = new ArrayList<Color[]>();
         CurrentLiftAction = STATE_LIFT_ACTION.ZERO_LIFT;
-        lift.init();
+        lift.init();        
 //        CompressorChargedOnce = false;
 //        CompressorTimer = Timer.getFPGATimestamp();
+
+        // Set LEDs
+        colors.add(new Color[]{Color.Random(), Color.White, Color.Blue, Color.Red});
+        colors.add(new Color[]{Color.Random(), Color.Black, Color.Cyan, Color.Green});
+        colors.add(new Color[]{Color.Random(), Color.Green, Color.White, Color.Yellow});
+        leds.AddEffect(new LEDEffect(colors, LEDEffect.EFFECT.FLASH, Double.MAX_VALUE, 2), true);
     }
 
+    
     private void UpdateDashboard()
     {
 //        SmartDashboard.putBoolean("ToteIntakeSensor", lift.GetToteIntakeSensor().IsOn());
@@ -268,9 +283,15 @@ public class Application extends com.taurus.Application {
 
     public void AutonomousInitRobotSpecific()
     {
+        ArrayList<Color[]> colors = new ArrayList<Color[]>();
+        
         drive.ZeroGyro();
         AUTO_MODE automode = (AUTO_MODE) autoChooser.getSelected();
         autonomous = new Autonomous(drive, lift, vision, automode);
+        
+        // Set LEDs
+        colors.add(new Color[]{Color.Random(), Color.White, Color.Blue, Color.Red});
+        leds.AddEffect(new LEDEffect(colors, LEDEffect.EFFECT.SPIN, Double.MAX_VALUE, 2), true);
     }
 
     public void AutonomousPeriodicRobotSpecific()
@@ -299,6 +320,7 @@ public class Application extends com.taurus.Application {
         boolean button15 = controller.getRawButton(15);
         boolean button16 = controller.getRawButton(16);
         lift.GetCar().ZeroIfNeeded();
+        
 
         // test modes for cylinders and motors and features.
         switch (((Integer) testChooser.getSelected()).intValue())
