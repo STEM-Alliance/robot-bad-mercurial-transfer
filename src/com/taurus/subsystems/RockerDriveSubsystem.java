@@ -1,7 +1,10 @@
 package com.taurus.subsystems;
 
+import com.taurus.PIDController;
 import com.taurus.commands.DriveTankWithXbox;
 import com.taurus.robot.RobotMap;
+import com.taurus.swerve.SwerveIMU;
+import com.taurus.vision.Vision;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Preferences;
@@ -162,6 +165,27 @@ public class RockerDriveSubsystem extends Subsystem
         tankDrive(right, left);
     }
    
+    public boolean aim(double changeInAngle) {
+
+        double motorOutput = drivePID.update(changeInAngle);//TODO add limits for angle
+
+        if(Math.abs(changeInAngle) <= 5){
+            driveRaw(0, 0, 0, 0, 0, 0);
+            return true;
+        } else {
+            driveRaw(-motorOutput, -motorOutput, -motorOutput, motorOutput, motorOutput, motorOutput);
+            return false;
+        }
+    }
+    
+    /**
+     * aims the shooter at the detected target 
+     * @return true when aimer is at desired angle
+     */
+    public boolean aim(){
+        return aim(vision.getTarget().Yaw());
+    }
+    
     public double getEncoderRotations()
     {
         return 0;  // TODO Get from the Talon SRX's, potentially average all four?

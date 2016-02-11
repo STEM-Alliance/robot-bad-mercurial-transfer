@@ -2,21 +2,25 @@ package com.taurus.vision;
 
 import java.util.Comparator;
 
+import com.taurus.robot.Robot;
+
 public class Target implements Comparable<Target> {
 
-    private double x;
-    private double y;
+    private double x; //center pixels (all)
+    private double y;//center
     private double area;
-    private double h;
-    private double w;
+    private double h;//target
+    private double w;//target
+    private double orientation;
     
-    public Target(double x, double y, double area, double h, double w)
+    public Target(double x, double y, double area, double h, double w, double orientation)
     {
         this.x = x;
         this.y = y;
         this.area = area;
         this.h = h;
         this.w = w;
+        this.orientation = orientation;
     }
 
     public double X()
@@ -43,7 +47,24 @@ public class Target implements Comparable<Target> {
     {
         return w;
     }
+    
+    public double Orientation()
+    {
+        return orientation;
+    }
 
+    public double Left()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public double Top()
+    {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
     /**
      * Get the distance to the target, based on the known dimensions of the target
      * @return distance in inches
@@ -51,17 +72,38 @@ public class Target implements Comparable<Target> {
     public double DistanceToTarget()
     {
         //TODO see http://www.pyimagesearch.com/2015/01/19/find-distance-camera-objectmarker-using-python-opencv/
-        return 0;
+        double distanceToTarget = (Constants.TargetWidthIn * Constants.FocalLengthIn) / w;
+        return distanceToTarget;
+        
     }
     
     /**
      * Get the pitch (vertical angle) from the camera to the target
-     * @return angle in degrees
+     * @return angle displaced in degrees
      */
     public double Pitch()
     {
-        //TODO see http://stackoverflow.com/questions/17499409/opencv-calculate-angle-between-camera-and-pixel
-        return 0;
+        
+        double inPerPx = Constants.TargetHeightIn / h;//changed to width
+        double yChange = inPerPx * ((Constants.Height/2) - y); //Difference between center of image and center of target in pixels
+        double currentAngle = Robot.shooterSubsystem.getCurrentAngle(); //current angle of the shooter
+        double distance = DistanceToTarget();
+        double deltaAngle;//angle displaced
+        double Y0 = Constants.TowerHeightIn - Robot.liftSubsystem.getTotalHeight();//Tower height - lift height
+        
+        if (y > Constants.Height / 2){
+            //target below
+            double Y1 = Constants.TowerHeightIn - Robot.liftSubsystem.getTotalHeight();           
+            double angle1 = Math.toDegrees(Math.asin(Y1 / distance));
+            deltaAngle = currentAngle - angle1;
+        } else {
+            //target above
+            double totalAngle = Math.toDegrees(Math.asin(Y0/distance));
+            deltaAngle = totalAngle - currentAngle;
+        }
+     
+        return deltaAngle;//angle displaced
+
     }
 
     /**
@@ -71,8 +113,16 @@ public class Target implements Comparable<Target> {
     public double Yaw()
     {
         //TODO see http://stackoverflow.com/questions/17499409/opencv-calculate-angle-between-camera-and-pixel
-        return 0;
+        double inPerPx = Constants.TargetWidthIn / w;//changed to width
+        double xChange = inPerPx * ((Constants.Width/2) - x); //Difference between center of image and center of target in pixels
+        double angle = Math.asin(xChange / DistanceToTarget()); 
+        return Math.toDegrees(angle);
+        
+     
+       
     }
+    
+   
 
     /**
      * Compare the area of a {@link Target} to another {@link Target}
@@ -153,5 +203,6 @@ public class Target implements Comparable<Target> {
     {
         return AreaCompare.compare(this, o);
     }
+
     
 }
