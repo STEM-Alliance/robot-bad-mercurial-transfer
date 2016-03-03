@@ -4,11 +4,9 @@ package com.taurus.robot;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
-import com.taurus.commands.AutoLowBar;
-import com.taurus.commands.AutoTerrain;
+import com.taurus.commands.AutoDrive;
 import com.taurus.subsystems.*;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -51,10 +49,10 @@ public class Robot extends SampleRobot {
         kickerSubsystem = new KickerSubsystem();
         
         oi = new OI();
-        chooser = new SendableChooser();
-        chooser.addDefault("Auto Terrain", new AutoTerrain());
-        chooser.addObject("Auto Low Bar", new AutoLowBar());
-        SmartDashboard.putData("Auto mode", chooser);       
+//        chooser = new SendableChooser();
+//        chooser.addDefault("Auto Terrain", new AutoTerrain());
+//        chooser.addObject("Auto Low Bar", new AutoLowBar());
+//        SmartDashboard.putData("Auto mode", chooser);       
     }
 
     public void operatorControl()
@@ -70,21 +68,21 @@ public class Robot extends SampleRobot {
     
     public void autonomous()
     {
-        autonomousCommand = (Command) chooser.getSelected();
-        //autonomousCommand =  new AutoLowBar();
+//        autonomousCommand = (Command) chooser.getSelected();
+        autonomousCommand =  new AutoDrive();
         
-        String autoSelected = SmartDashboard.getString("Auto Mode", "Auto Terrain");
-        switch(autoSelected) {
-        case "Auto Low Bar":
-            autonomousCommand = new AutoLowBar();
-            break;
-        case "Auto Terrain":
-            autonomousCommand = new AutoTerrain();
-            break;
-        default:
-            autonomousCommand = new AutoTerrain();
-            break;
-        }
+//        String autoSelected = SmartDashboard.getString("Auto Mode", "Auto Terrain");
+//        switch(autoSelected) {
+//        case "Auto Low Bar":
+//            autonomousCommand = new AutoLowBar();
+//            break;
+//        case "Auto Terrain":
+//            autonomousCommand = new AutoTerrain();
+//            break;
+//        default:
+//            autonomousCommand = new AutoTerrain();
+//            break;
+//        }
         
         // schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
