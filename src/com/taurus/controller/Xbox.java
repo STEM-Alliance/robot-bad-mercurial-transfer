@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.communication.FRCNetworkCommunicationsLibrary;
  */
 public class Xbox extends GenericHID {
 
+    private static final double DEADBAND = 0.2;
     private DriverStation m_ds;
     private final int m_port;
 
@@ -85,8 +86,8 @@ public class Xbox extends GenericHID {
         private static final int kB_val = 2;
         private static final int kX_val = 3;
         private static final int kY_val = 4;
-        private static final int kL_val = 5;
-        private static final int kR_val = 6;
+        private static final int kLB_val = 5;
+        private static final int kRB_val = 6;
         private static final int kBack_val = 7;
         private static final int kStart_val = 8;
         private static final int kLeftStick_val = 9;
@@ -136,12 +137,12 @@ public class Xbox extends GenericHID {
         /**
          * Button: R1
          */
-        public static final ButtonType kR = new ButtonType(kR_val);
+        public static final ButtonType kRB = new ButtonType(kRB_val);
 
         /**
          * Button: L1
          */
-        public static final ButtonType kL = new ButtonType(kL_val);
+        public static final ButtonType kLB = new ButtonType(kLB_val);
 
         /**
          * Button: Select
@@ -206,7 +207,7 @@ public class Xbox extends GenericHID {
      */
     public double getRawAxis(int axis)
     {
-        return m_ds.getStickAxis(m_port, axis);
+        return scaleForDeadband(m_ds.getStickAxis(m_port, axis));
     }
 
     /**
@@ -218,7 +219,11 @@ public class Xbox extends GenericHID {
      */
     public double getAxis(AxisType axis)
     {
-        return getRawAxis(axis.value);
+        // we need forward Y to be positive instead of negative
+        if(axis == AxisType.kLeftY || axis == AxisType.kRightY)
+            return -getRawAxis(axis.value);
+        else
+            return getRawAxis(axis.value);
     }
 
     /**
@@ -444,11 +449,11 @@ public class Xbox extends GenericHID {
     {
         if (hand == Hand.kRight)
         {
-            return getButton(ButtonType.kR);
+            return getButton(ButtonType.kRB);
         }
         else if (hand == Hand.kLeft)
         {
-            return getButton(ButtonType.kL);
+            return getButton(ButtonType.kLB);
         }
         else
         {
@@ -566,5 +571,20 @@ public class Xbox extends GenericHID {
     public void setOutputs(int value) {
         m_outputs = value;
         FRCNetworkCommunicationsLibrary.HALSetJoystickOutputs((byte)m_port, m_outputs, m_leftRumble, m_rightRumble);
+    }
+    private double scaleForDeadband(double value)
+    {
+        double abs = Math.abs(value);
+        
+        if (abs < DEADBAND)
+        {
+            value = 0;
+        }
+        else
+        {
+            value = Math.signum(value) * ((abs - DEADBAND) / (1 - DEADBAND));
+        }
+        
+        return value;
     }
 }
