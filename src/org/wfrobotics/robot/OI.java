@@ -33,6 +33,8 @@ public class OI
     {
         //buttonDriveStart.toggleWhenPressed(new DriveSwerveSingleWheelTest());
         //buttonDriveBack.toggleWhenPressed(new DriveSwerveWheelCalibration());
+        //buttonDriveStart.toggleWhenPressed(new DriveTankArcade());
+        //buttonDriveBack.toggleWhenPressed(new DriveTank(true));
                 
         //////////////////////////
         
@@ -53,7 +55,7 @@ public class OI
         
         public static double getThrottleSpeedAdjust()
         {
-            return 1.0 - .5 * xboxDrive.getTriggerVal(Hand.kLeft);
+            return 0.5 + .5 * xboxDrive.getTriggerVal(Hand.kLeft);
         }
     }
     
@@ -71,9 +73,27 @@ public class OI
         
         public static double getThrottleSpeedAdjust()
         {
-            return 1.0 - .5 * xboxDrive.getTriggerVal(Hand.kLeft);
+            return 0.5 + .5 * xboxDrive.getTriggerVal(Hand.kLeft);
         }
     }
+    
+    public static class DriveMecanumOI
+    {
+        public static double getY()
+        {
+          return xboxDrive.getY(Hand.kLeft);
+        }
+
+        public static double getX()
+        {
+            return xboxDrive.getX(Hand.kLeft);
+        }
+        public static double getRotation()
+        {
+            return xboxDrive.getX(Hand.kRight);
+        }
+    }
+    
     
     public static class DriveSwerveOI
     {

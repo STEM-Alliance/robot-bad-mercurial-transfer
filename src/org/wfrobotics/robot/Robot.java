@@ -38,6 +38,7 @@ public class Robot extends SampleRobot
     }
 
 	public static TankDriveSubsystem tankDriveSubsystem;
+    public static MecanumDriveSubsystem mecanumDriveSubsystem;
 	public static SwerveDriveSubsystem swerveDriveSubsystem;
 	public static OI oi;
 
@@ -56,6 +57,10 @@ public class Robot extends SampleRobot
         {
             case DRIVE_SWERVE:
                 swerveDriveSubsystem = new SwerveDriveSubsystem();
+                break;
+
+            case DRIVE_MECANUM:
+                mecanumDriveSubsystem = new MecanumDriveSubsystem();
                 break;
                 
             case DRIVE_TANK:
