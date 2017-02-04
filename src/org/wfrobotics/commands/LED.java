@@ -42,12 +42,16 @@ public class LED extends Command
     @Override
     protected void initialize()
     {
-        
+        if (mode == MODE.BLINK)
+        {
+            Robot.ledSubsystem.blink(hardware, .7);
+        }
     }
 
     @Override
     protected void execute()
     {   
+        SmartDashboard.putString("LED Mode", mode.name());
         if (mode == MODE.OFF)
         {
             Robot.ledSubsystem.setOn(hardware, false);
@@ -58,18 +62,18 @@ public class LED extends Command
         }
         else if (mode == MODE.BLINK)
         {
-            Robot.ledSubsystem.blink(hardware, 5);
         }
         else
         {
             
         }
+        
     }
     
     @Override
     protected boolean isFinished()
     {
-        return isTimedOut();
+        return false;//isTimedOut();
     }
 
     @Override
