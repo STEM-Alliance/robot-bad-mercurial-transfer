@@ -47,7 +47,7 @@ public class Up extends Command
             {
                 if(timeSinceInitialized() - time < Constants.CLIMBER_CLIMB_TIME_AFTER_TOP_REACHED)
                 {
-                    Robot.climberSubsystem.setSpeed(OI.getClimbSpeed());
+                    Robot.climberSubsystem.setSpeed(1);
                 }
                 else
                 {
@@ -82,6 +82,7 @@ public class Up extends Command
     protected void end()
     {
         //Not sure if we should turn off the motor; Robot might fall?
+            // no it wont we have a ratchet to keep that from happening
     }
 
     @Override
