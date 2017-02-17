@@ -11,9 +11,15 @@ import edu.wpi.first.wpilibj.command.Command;
 
 public class DriveSwerve extends Command 
 {
-    public enum MODE {HALO, COMBO, ANGLE, STOP}
+    public enum MODE {HALO, FUSION, COMBO, ANGLE, STOP}
+    
+    private boolean AUTO_SHIFT_ENABLE = false;
+    private final double AUTO_SHIFT_TIME = 1;
+    private final double AUTO_SHIFT_SPEED = .5;
     
     private final MODE mode;
+    private double startFusionPosition;  // FUSION mode adds dial rotation minus it's start position (relative rotation) to driver rotation (absolute rotation)
+    private double highVelocityStart;
     
     public DriveSwerve(MODE mode)
     {
@@ -24,7 +30,8 @@ public class DriveSwerve extends Command
 
     protected void initialize()
     {
-        
+        startFusionPosition = -OI.DriveSwerveOI.getFusionDrive_Rotation();
+        highVelocityStart = timeSinceInitialized();
     }
 
     protected void execute() 
@@ -42,7 +49,17 @@ public class DriveSwerve extends Command
                 speedRobot = OI.DriveSwerveOI.getHaloDrive_Velocity();
                 speedRotation = -OI.DriveSwerveOI.getHaloDrive_Rotation();
                 break;
+            case FUSION:
+                Robot.driveSubsystem.wheelManager.config.crawlModeMagnitude = OI.DriveSwerveOI.getCrawlSpeed();
                 
+                speedRobot = OI.DriveSwerveOI.getHaloDrive_Velocity();
+                speedRotation = -OI.DriveSwerveOI.getFusionDrive_Rotation() + startFusionPosition;
+                
+                if (speedRobot.getMag() < AUTO_SHIFT_SPEED)  // Allow high gear to "kick in" after AUTO_SHIFT_SPEED seconds of high speed
+                {
+                    highVelocityStart = timeSinceInitialized();
+                }
+                break;
             case COMBO:
                 double dpad = OI.DriveSwerveOI.getDpad();
                 
@@ -98,6 +115,10 @@ public class DriveSwerve extends Command
                 break;
         }
         
+        if (AUTO_SHIFT_ENABLE)
+        {
+            Robot.driveSubsystem.configSwerve.gearHigh = timeSinceInitialized() - highVelocityStart > AUTO_SHIFT_TIME && speedRobot.getMag() > AUTO_SHIFT_SPEED;
+        }
         Robot.driveSubsystem.driveVector(speedRobot, speedRotation);
     }
 
