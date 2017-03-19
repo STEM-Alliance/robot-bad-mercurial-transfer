@@ -5,6 +5,9 @@ import org.wfrobotics.Utilities;
 import org.wfrobotics.Vector;
 import org.wfrobotics.commands.drive.AutoDrive;
 import org.wfrobotics.hardware.Gyro;
+import org.wfrobotics.hardware.led.LEDs;
+import org.wfrobotics.hardware.led.LEDs.Effect;
+import org.wfrobotics.hardware.led.LEDs.Effect.EFFECT_TYPE;
 import org.wfrobotics.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
@@ -34,6 +37,7 @@ public class VisionGearDropOff extends CommandGroup
 
     protected void initialize()
     {
+        Robot.leds.set(new Effect(EFFECT_TYPE.OFF, LEDs.BLACK, 1));
         fieldRelative = Robot.driveSubsystem.getFieldRelative();
         Robot.driveSubsystem.setFieldRelative(false);
         done = false;
