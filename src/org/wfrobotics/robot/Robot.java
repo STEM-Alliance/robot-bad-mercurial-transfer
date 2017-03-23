@@ -60,6 +60,7 @@ public class Robot extends SampleRobot
         lifterSubsystem = new Lifter(true);
         shooterSubsystem = new Shooter();
         leds = new MindsensorCANLight(RobotMap.CAN_LIGHT[0]);
+        leds.enable(false); // TODO Remove this when we have LEDs on the robot!!!
 
         oi = new OI();  // IMPORTANT: Initialize OI after subsystems, so all subsystem parameters passed to commands are initialized
         
