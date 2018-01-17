@@ -10,12 +10,12 @@ public class Brake extends InstantCommand
 
     public Brake(boolean enable)
     {
-        requires(Robot.driveSubsystem);
+        requires(Robot.driveService.getSubsystem());
         request = enable;
     }
 
     protected void initialize()
     {
-        Robot.driveSubsystem.setBrake(request);
+        Robot.driveService.setBrake(request);
     }
 }

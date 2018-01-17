@@ -1,12 +1,15 @@
 package org.wfrobotics.reuse.subsystems.swerve;
 
-import org.wfrobotics.reuse.commands.drive.swerve.DriveSwerve;
+import org.wfrobotics.reuse.commands.holonomic.DriveSwerve;
 import org.wfrobotics.reuse.hardware.sensors.Gyro;
+import org.wfrobotics.reuse.subsystems.drive.HolonomicDrive;
 import org.wfrobotics.reuse.utilities.HerdAngle;
 import org.wfrobotics.reuse.utilities.HerdLogger;
+import org.wfrobotics.reuse.utilities.HerdVector;
 import org.wfrobotics.reuse.utilities.PIDController;
 import org.wfrobotics.robot.RobotState;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
@@ -19,8 +22,9 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  * Swerve Drive implementation
  * @author Team 4818 WFRobotics
  */
-public class SwerveSubsystem extends Subsystem
+public class SwerveSubsystem extends Subsystem implements HolonomicDrive
 {
+    private static SwerveSubsystem instance = null;
     Preferences prefs = Preferences.getInstance();
     RobotState state = RobotState.getInstance();
     private Gyro gyro = Gyro.getInstance();
@@ -33,7 +37,7 @@ public class SwerveSubsystem extends Subsystem
     private boolean brakeLastSet;
     private boolean gearLastSet;
 
-    public SwerveSubsystem()
+    private SwerveSubsystem()
     {
         pidHeading = new PIDController(Config.CHASSIS_P, Config.CHASSIS_I, Config.CHASSIS_D, 1.0);
         chassis = new Chassis();
@@ -44,6 +48,12 @@ public class SwerveSubsystem extends Subsystem
         gearLastSet = false;
     }
 
+    public static SwerveSubsystem getInstance()
+    {
+        if (instance == null) { instance = new SwerveSubsystem(); }
+        return instance;
+    }
+
     public String toString()
     {
         return String.format("Brake: %b", brakeLastSet);
@@ -52,6 +62,16 @@ public class SwerveSubsystem extends Subsystem
     public void initDefaultCommand()
     {
         setDefaultCommand(new DriveSwerve());
+    }
+
+    public void driveBasic(HerdVector vector)
+    {
+        DriverStation.reportWarning("TODO", true);
+    }
+
+    public void turnBasic(HerdVector vector)
+    {
+        DriverStation.reportWarning("TODO", true);
     }
 
     public void driveWithHeading(SwerveSignal command)

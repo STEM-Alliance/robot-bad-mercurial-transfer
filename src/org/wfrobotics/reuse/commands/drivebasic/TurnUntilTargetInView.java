@@ -1,4 +1,4 @@
-package org.wfrobotics.reuse.commands.drive.swerve;
+package org.wfrobotics.reuse.commands.drivebasic;
 
 import org.wfrobotics.reuse.hardware.led.LEDs;
 import org.wfrobotics.reuse.hardware.led.LEDs.Effect;
@@ -15,6 +15,7 @@ public class TurnUntilTargetInView extends TurnToHeading
 
     protected void initialize()
     {
+        super.initialize();
         LED.getInstance().set(new Effect(EFFECT_TYPE.OFF, LEDs.BLACK, 1));
     }
 

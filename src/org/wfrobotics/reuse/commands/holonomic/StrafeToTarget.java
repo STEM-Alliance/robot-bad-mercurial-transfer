@@ -1,28 +1,29 @@
-package org.wfrobotics.reuse.commands.drive.swerve;
+package org.wfrobotics.reuse.commands.holonomic;
 
 import org.wfrobotics.reuse.hardware.led.LEDs;
 import org.wfrobotics.reuse.hardware.led.LEDs.Effect;
 import org.wfrobotics.reuse.hardware.led.LEDs.Effect.EFFECT_TYPE;
-import org.wfrobotics.robot.RobotState;
 import org.wfrobotics.robot.subsystems.LED;
 
-public class StrafeUntilTargetInView extends Strafe
+public class StrafeToTarget extends Strafe
 {
-    RobotState state = RobotState.getInstance();
+    final double tol;
 
-    public StrafeUntilTargetInView(double xSpeed, double timeout)
+    public StrafeToTarget(double xSpeed, double timeout, double tolerance)
     {
         super(xSpeed, timeout);
+        tol = tolerance;
     }
 
     protected void initialize()
     {
+        super.initialize();
         LED.getInstance().set(new Effect(EFFECT_TYPE.OFF, LEDs.BLACK, 1));
     }
 
     protected boolean isFinished()
     {
-        if(state.visionInView)
+        if(state.visionInView && Math.abs(state.visionError) < tol)
         {
             return true;
         }

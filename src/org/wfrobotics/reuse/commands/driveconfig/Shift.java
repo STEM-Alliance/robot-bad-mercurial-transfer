@@ -10,12 +10,12 @@ public class Shift extends InstantCommand
 
     public Shift(boolean highGear)
     {
-        requires(Robot.driveSubsystem);
+        requires(Robot.driveService.getSubsystem());
         request = highGear;
     }
 
     protected void initialize()
     {
-        Robot.driveSubsystem.setGear(request);
+        Robot.driveService.setGear(request);
     }
 }

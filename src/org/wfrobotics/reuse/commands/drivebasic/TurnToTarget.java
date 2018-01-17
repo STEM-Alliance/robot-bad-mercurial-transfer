@@ -1,9 +1,8 @@
-package org.wfrobotics.reuse.commands.drive.swerve;
+package org.wfrobotics.reuse.commands.drivebasic;
 
 import org.wfrobotics.reuse.hardware.led.LEDs;
 import org.wfrobotics.reuse.hardware.led.LEDs.Effect;
 import org.wfrobotics.reuse.hardware.led.LEDs.Effect.EFFECT_TYPE;
-import org.wfrobotics.reuse.subsystems.swerve.SwerveSignal;
 import org.wfrobotics.reuse.utilities.HerdVector;
 import org.wfrobotics.robot.subsystems.LED;
 
@@ -17,6 +16,7 @@ public class TurnToTarget extends TurnToHeading
 
     protected void initialize()
     {
+        super.initialize();
         LED.getInstance().set(new Effect(EFFECT_TYPE.OFF, LEDs.BLACK, 1));
     }
 
@@ -25,7 +25,7 @@ public class TurnToTarget extends TurnToHeading
         if (state.visionInView)
         {
             double targetHeading = state.robotHeading + state.visionError;
-            s = new SwerveSignal(new HerdVector(0, 0), 0, targetHeading);
+            vector = new HerdVector(1, targetHeading);  // TODO magnitude should be configurable, add to constructor?
         }
         super.execute();
     }

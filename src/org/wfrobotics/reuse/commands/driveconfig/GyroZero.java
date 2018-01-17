@@ -8,11 +8,11 @@ public class GyroZero extends InstantCommand
 {
     public GyroZero()
     {
-        requires(Robot.driveSubsystem);
+        requires(Robot.driveService.getSubsystem());
     }
 
     protected void initialize()
     {
-        Robot.driveSubsystem.zeroGyro();
+        Robot.driveService.zeroGyro();
     }
 }

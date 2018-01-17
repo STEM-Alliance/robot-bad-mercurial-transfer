@@ -1,12 +1,14 @@
 
-package org.wfrobotics.reuse.commands.drive.swerve;
+package org.wfrobotics.reuse.commands.drivebasic;
+
+import org.wfrobotics.reuse.utilities.HerdVector;
 
 /** Drive relative to the field. The robot's momentum is not dampened when the command ends. **/
 public class AutoDriveCoast extends AutoDrive
 {
-    public AutoDriveCoast(double speedX, double speedY, double timeout)
+    public AutoDriveCoast(HerdVector vector, double timeout)
     {
-        super(speedX, speedY, timeout);
+        super(vector, timeout);
     }
 
     protected void end()

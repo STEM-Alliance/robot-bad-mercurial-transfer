@@ -9,11 +9,11 @@ public class ShiftToggle extends InstantCommand
 {
     public ShiftToggle()
     {
-        requires(Robot.driveSubsystem);
+        requires(Robot.driveService.getSubsystem());
     }
 
     protected void initialize()
     {
-        Robot.driveSubsystem.setGear(!RobotState.getInstance().robotGear);
+        Robot.driveService.setGear(!RobotState.getInstance().robotGear);
     }
 }
