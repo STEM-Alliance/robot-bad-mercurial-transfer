@@ -1,16 +1,16 @@
 package org.wfrobotics.robot;
 
 import org.wfrobotics.reuse.subsystems.tank.TankService;
-import org.wfrobotics.reuse.subsystems.vision.CameraServer;
 import org.wfrobotics.reuse.utilities.DashboardView;
 import org.wfrobotics.reuse.utilities.HerdLogger;
 import org.wfrobotics.reuse.utilities.MatchState2018;
 import org.wfrobotics.robot.config.Autonomous;
 import org.wfrobotics.robot.config.IO;
-import org.wfrobotics.robot.subsystems.LED;
+import org.wfrobotics.robot.subsystems.IntakeSolenoidSubsystem;
+import org.wfrobotics.robot.subsystems.IntakeSubsystem;
+import org.wfrobotics.robot.subsystems.LiftSubsystem;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -26,6 +26,11 @@ public class Robot extends SampleRobot
     private final MatchState2018 matchState = MatchState2018.getInstance();
 
     public static TankService driveService;
+
+    public static LiftSubsystem liftSubsystem;
+    public static IntakeSubsystem intakeSubsystem;
+    public static IntakeSolenoidSubsystem intakeSolenoidSubsystem;
+
     public static DashboardView dashboardView;
 
     public static IO controls;
@@ -36,6 +41,10 @@ public class Robot extends SampleRobot
     public void robotInit()
     {
         driveService = new TankService();
+        liftSubsystem = new LiftSubsystem();
+        intakeSubsystem = new IntakeSubsystem();
+        intakeSolenoidSubsystem = new IntakeSolenoidSubsystem();
+
         // uncomment if using USB camera to stream video from roboRio
         //dashboardView = new DashboardView();
 
@@ -62,7 +71,7 @@ public class Robot extends SampleRobot
             // something went wrong, and we didn't get the match info data
             // TODO error?
         }
-        
+
         autonomousCommand =  Autonomous.setupSelectedMode();
         if (autonomousCommand != null) autonomousCommand.start();
 
@@ -94,10 +103,10 @@ public class Robot extends SampleRobot
 
     private void allPeriodic()
     {
-        
+
         SmartDashboard.putNumber("Battery V", RobotController.getInputVoltage());
         SmartDashboard.putNumber("Battery A", RobotController.getInputCurrent());
-        
+
         state.logState();
 
         double start = Timer.getFPGATimestamp();
