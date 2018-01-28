@@ -1,24 +1,18 @@
 package org.wfrobotics.robot.subsystems;
 
-import org.wfrobotics.robot.Robot;
 import org.wfrobotics.robot.commands.Elevate;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/**
- *
- */
 public class LiftSubsystem extends Subsystem
 {
+    // TODO List of present heights
+    // TODO Preset heights in configuration file
+
     public TalonSRX LiftMotor;
     public DigitalInput BottomSensor;
     public DigitalInput TopSensor;
@@ -26,77 +20,34 @@ public class LiftSubsystem extends Subsystem
 
     public LiftSubsystem()
     {
-
+        // TODO Use Talon factory. If not position control, at least makeTalon()
         LiftMotor = new TalonSRX(18);
-        BottomSensor = new DigitalInput(0);
-        TopSensor = new DigitalInput(1);
+        BottomSensor = new DigitalInput(1);
+        TopSensor = new DigitalInput(0);
+        LiftMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
 
-        //LiftMotor.setNeutralMode(NeutralMode.Brake);
-        LiftMotor.setInverted(true);
+        // TODO Setup Position control mode
 
-        LiftMotor.getSelectedSensorPosition(10);
+        // TODO Figure out what settings are ideal
 
-        // LiftMotor.setSelectedSensorPosition(absolutePosition, 0, 10);
+        // TODO Poofs used brake mode on drive postion control. Why didn't ours work?
 
-        LiftMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
-        LiftMotor.setSensorPhase(true);
+        // TODO Make sure frame rate is high, but not too high. Double check we aren't setting irrelevant frame types super as fast - we need the bandwidth for lift/drive important frames
 
-        LiftMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, 5, 10);
-        LiftMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_8_PulseWidth, 5, 10);
-        LiftMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 1 , 10);
-        //LiftMotor.setControlFramePeriod(ControlFrame.Control_3_General, 1);
-        LiftMotor.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 5, 10);
-        LiftMotor.setStatusFramePeriod(StatusFrame.Status_4_AinTempVbat, 5, 10);
+        // TODO Can we get away with follower mode or do we need to two that try to adjust if we slip a geartooth? Ask mechanical what to do.
 
-        //LiftMotor.setNeutralMode(NeutralMode.Brake);
+        // TODO Setup two hardware managed limit switches - Faster & safer than software limit switches
 
-        LiftMotor.configAllowableClosedloopError(5, 0, 10);
-        LiftMotor.config_kF(0, 0.0, 10);
-        LiftMotor.config_kP(0, 20, 10);//20
-        LiftMotor.config_kI(0, 0, 10);
-        LiftMotor.config_kD(0, 125, 10);
-        LiftMotor.configNeutralDeadband(.05, 10);
-        LiftMotor.config_IntegralZone(0, 1, 10);
+        // TODO Beast mode - Distance sensors to sense scale here or somewhere else? Low priority.
+
+        // TODO There's a "state pattern" that can help us if the rules for going to/from each state gets too complex
     }
 
-    public void goToPosition(double destination)
+    // TODO Lift needs to hold position by default
+    //      Beast mode - Can (or should we even) automatically go the height based on if we have a cube or some IO to tell our intended preset to score on?
+    public void initDefaultCommand()
     {
-        LiftMotor.setNeutralMode(NeutralMode.Coast);
-
-        update();
-        LiftMotor.set(ControlMode.Position, (destination*4096));
-    }
-
-    public void setSpeed (double speed)
-    {
-        LiftMotor.setNeutralMode(NeutralMode.Brake);
-        double output = speed;
-        if(speed == 0)
-        {
-            LiftMotor.setNeutralMode(NeutralMode.Coast);
-        }
-
-        if(isAtBottom() && speed < 0 || isAtTop() && speed > 0)
-        {
-            output = 0;
-        }
-
-        update();
-        LiftMotor.set(ControlMode.PercentOutput, output);
-    }
-
-    private void update()
-    {
-        zeroPositionIfNeeded();
-        SmartDashboard.putNumber("LiftEncoder", Robot.liftSubsystem.getEncoder());
-    }
-
-    public void zeroPositionIfNeeded()
-    {
-        if(Robot.liftSubsystem.isAtBottom())
-        {
-            Robot.liftSubsystem.LiftMotor.setSelectedSensorPosition(0, 0, 0);
-        }
+        setDefaultCommand(new Elevate(0));
     }
 
     public boolean isAtTop()
@@ -114,11 +65,13 @@ public class LiftSubsystem extends Subsystem
         return LiftMotor.getSelectedSensorPosition(0);
     }
 
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
-    public void initDefaultCommand()
-    {
-        // Set the default command for a subsystem here.
-        setDefaultCommand(new Elevate(0));
-    }
+    // TODO Report fommatted state to RobotState. Not the height, but instead something like what the Robot can do. Ex: isSafeToExhaustScale
+
+    // TODO Automatically zero whenever we pass by that sensor(s)
+
+    // TODO What's the most automatic way we can score on the first layer of cube (on scale/switch) vs the second? What are the easiest xbox controls for that?
+
+    // TODO Beast mode - The fastest lift possible probably dynamically changes it's control strategy to get to it's destination fastest
+    //                   This might mean a more aggressive PID (profile) on the way down
+    //                   Could go as far as using both closed and open loop control modes
 }
