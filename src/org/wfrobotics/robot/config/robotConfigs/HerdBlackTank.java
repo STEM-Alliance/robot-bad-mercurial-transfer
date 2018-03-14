@@ -15,7 +15,7 @@ public class HerdBlackTank extends RobotConfig
         INTAKE_TIMEOUT_JAWS = 0.5; // seconds
         INTAKE_TIMEOUT_WRIST = 0.5; //seconds
         INTAKE_INVERT_RIGHT = false;
-        INTAKE_INVERT_LEFT = false;
+        INTAKE_INVERT_LEFT = true;
 
         //                      Lift
         // _________________________________________________________________________________
@@ -49,6 +49,9 @@ public class HerdBlackTank extends RobotConfig
         TANK_CRUISE_VELOCITY = (int) (TANK_MAX_VELOCITY * .9);
         TANK_ACCELERATION = new int[] {TANK_CRUISE_VELOCITY, TANK_CRUISE_VELOCITY};
         TANK_IZONE = 20;
+
+        TANK_GEAR_RATIO_ENCODER_TO_WHEEL_HIGH = 24.0 / 60.0;
+        TANK_GEAR_RATIO_ENCODER_TO_WHEEL_LOW = 60.0 / 24.0;
 
         TANK_LEFT_INVERT = true;
         TANK_RIGHT_INVERT = false;

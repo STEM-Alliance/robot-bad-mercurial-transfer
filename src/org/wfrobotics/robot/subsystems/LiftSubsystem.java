@@ -93,7 +93,6 @@ public class LiftSubsystem extends Subsystem implements BackgroundUpdate
     {
         setDefaultCommand(new LiftAutoZeroThenPercentVoltage());
         //        setDefaultCommand(new LiftPercentVoltage());
-
     }
 
     public synchronized void onBackgroundUpdate()

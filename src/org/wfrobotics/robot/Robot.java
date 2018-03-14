@@ -3,6 +3,7 @@ package org.wfrobotics.robot;
 import org.wfrobotics.reuse.background.BackgroundUpdater;
 import org.wfrobotics.reuse.hardware.led.RevLEDs;
 import org.wfrobotics.reuse.hardware.led.RevLEDs.PatternName;
+import org.wfrobotics.reuse.subsystems.drive.TankSubsystem;
 import org.wfrobotics.reuse.utilities.DashboardView;
 import org.wfrobotics.reuse.utilities.MatchState2018;
 import org.wfrobotics.robot.auto.Testing_Stuff;
@@ -10,10 +11,10 @@ import org.wfrobotics.robot.config.Autonomous;
 import org.wfrobotics.robot.config.IO;
 import org.wfrobotics.robot.config.robotConfigs.HerdPractice;
 import org.wfrobotics.robot.config.robotConfigs.RobotConfig;
-import org.wfrobotics.robot.subsystems.DriveService;
 import org.wfrobotics.robot.subsystems.IntakeSubsystem;
 import org.wfrobotics.robot.subsystems.LiftSubsystem;
 import org.wfrobotics.robot.subsystems.WinchSubsystem;
+import org.wfrobotics.robot.subsystems.Wrist;
 
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Spark;
@@ -26,16 +27,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 @SuppressWarnings("deprecation")
 public class Robot extends SampleRobot
 {
-    private final BackgroundUpdater backgroundUpdater = new BackgroundUpdater();
+    private final BackgroundUpdater backgroundUpdater = new BackgroundUpdater(.005);
     private final Scheduler scheduler = Scheduler.getInstance();
     public static RobotConfig config;
     private final RobotState state = RobotState.getInstance();
     private final MatchState2018 matchState = MatchState2018.getInstance();
 
-    public static DriveService driveService;
+    public static TankSubsystem driveService;
     public static IntakeSubsystem intakeSubsystem;
     public static LiftSubsystem liftSubsystem;
     public static WinchSubsystem winch;
+    public static Wrist wrist;
     public static DashboardView dashboardView = new DashboardView(416, 240, 20);//, new DashboardView(416, 240, 20)};
 
     public static IO controls;
@@ -47,17 +49,19 @@ public class Robot extends SampleRobot
 
     public void robotInit()
     {
-        //        config = new HerdPractice();
-        config = new HerdPractice();//HerdVictor();
+        config = new HerdPractice();
+        //config = new HerdVictor();
 
-        driveService = DriveService.getInstance();
+        driveService = TankSubsystem.getInstance();
         liftSubsystem = new LiftSubsystem(config);
         intakeSubsystem = new IntakeSubsystem(config);
         winch = new WinchSubsystem(config);
+        wrist = new Wrist(config);
 
         controls = IO.getInstance();  // IMPORTANT: Initialize IO after subsystems, so all subsystem parameters passed to commands are initialized
         Autonomous.setupSelection();
 
+        backgroundUpdater.register(driveService);
         backgroundUpdater.register(intakeSubsystem);
         backgroundUpdater.register(liftSubsystem);
     }
@@ -67,7 +71,6 @@ public class Robot extends SampleRobot
         if (autonomousCommand != null) autonomousCommand.cancel();
 
         backgroundUpdater.start();
-        intakeSubsystem.setVertical(true);
         led.set(RevLEDs.getValue(PatternName.Yellow));
 
         while (isOperatorControl() && isEnabled())
@@ -84,11 +87,10 @@ public class Robot extends SampleRobot
             // TODO error?
         }
 
-        //        backgroundUpdater.start();
-        //        intakeSubsystem.setVertical(true);
-        //        led.set(RevLEDs.getValue((m_ds.getAlliance() == Alliance.Red) ? PatternName.Red : PatternName.Blue));
+        backgroundUpdater.start();
+        led.set(RevLEDs.getValue((m_ds.getAlliance() == Alliance.Red) ? PatternName.Red : PatternName.Blue));
 
-        autonomousCommand =  new Testing_Stuff();//Autonomous.getConfiguredCommand();
+        autonomousCommand =  Autonomous.getConfiguredCommand();
         if (autonomousCommand != null) autonomousCommand.start();
 
         while (isAutonomous() && isEnabled())
@@ -135,6 +137,7 @@ public class Robot extends SampleRobot
         // Update robot values to latest for this Scheduer iteration
         intakeSubsystem.reportState();
         liftSubsystem.reportState();
+        driveService.reportState();
         state.reportState();
 
         // Scheduler

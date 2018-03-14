@@ -27,10 +27,10 @@ public class IntakeManual extends Command
 
         if (speed > 0)  // Speed > 0 is exhausting cube
         {
-            speed *= .45;  // Slow cube out direction
+            speed *= 0.7;  // Slow cube out direction
         }
 
-        intake.setMotor(speed);
+        intake.setIntake(speed);
     }
 
     protected boolean isFinished()
@@ -40,6 +40,6 @@ public class IntakeManual extends Command
 
     protected void end()
     {
-        intake.setMotor(0);
+        intake.setIntake(0);
     }
 }

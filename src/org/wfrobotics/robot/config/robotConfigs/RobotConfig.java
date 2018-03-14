@@ -8,7 +8,15 @@ public abstract class RobotConfig
     // _________________________________________________________________________________
     public int INTAKE_SENSOR_R;
     public int INTAKE_SENSOR_L;
-
+    public double INTAKE_POSSIBLE_VELOCITY_PERCENTAGE;
+    public double INTAKE_P;
+    public double INTAKE_I;
+    public double INTAKE_D;
+    public double INTAKE_F;
+    public int INTAKE_VELOCITY;
+    public int INTAKE_ACCELERATION;
+    public int INTAKE_MAX_POSSIBLE_UP;
+    public int INTAKE_TICKS_TO_TOP;
     public double INTAKE_DISTANCE_TO_BUMPER;  // centimeters
     public double INTAKE_DISTANCE_TO_CUBE;  // centimeters
     public double INTAKE_TIMEOUT_JAWS;  // seconds
@@ -53,9 +61,9 @@ public abstract class RobotConfig
 
     public double TANK_GEAR_RATIO_ENCODER_TO_WHEEL_HIGH;  // Adjacent to encoder
     public double TANK_GEAR_RATIO_ENCODER_TO_WHEEL_LOW;  // Adjacent to encoder
-    public double TANK_GEAR_RATIO_MOTOR_TO_ENCODER;  // Wheel to adjacent
-    public double TANK_WHEEL_CIRCUMFERENCE;  // Adjust for thread wear as needed
-    public double DISTANCE_SEPERATION_WHEEL_SIDES;  // Center to center (side to side easier to measure)
+    public double TANK_GEAR_RATIO_MOTOR_TO_ENCODER = 36.0 / 15.0;  // Wheel to adjacent
+    public double TANK_WHEEL_DIAMETER = (6.25 * .995);  // Adjust for thread wear as needed
+    public double TANK_DISTANCE_SEPERATION_WHEEL_SIDES = 25;  // Center to center (side to side easier to measure)
 
     public boolean TANK_LEFT_INVERT;
     public boolean TANK_RIGHT_INVERT;
