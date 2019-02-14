@@ -3,7 +3,7 @@ package org.wfrobotics.robot.subsystems;
 import org.wfrobotics.reuse.config.TalonConfig.ClosedLoopConfig;
 import org.wfrobotics.reuse.hardware.TalonChecker;
 import org.wfrobotics.reuse.subsystems.PositionBasedSubsystem;
-import org.wfrobotics.robot.commands.wrist.WristOpenLoop;
+import org.wfrobotics.robot.commands.wrist.WristZeroThenOpenLoop;
 import org.wfrobotics.robot.config.RobotConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +28,7 @@ public class Wrist extends PositionBasedSubsystem
 
     protected void initDefaultCommand()
     {
-        setDefaultCommand(new WristOpenLoop());
+        setDefaultCommand(new WristZeroThenOpenLoop());
     }
 
     @Override
@@ -51,13 +51,13 @@ public class Wrist extends PositionBasedSubsystem
     public boolean inHatchMode()
     {
         final double angle = getPosition();
-        return 0.0 <= angle && angle <= 360.0;  // TODO tell if angle is "ready" for this
+        return angle >= kFullRangeInchesOrDegrees * 0.8;
     }
 
-    public boolean isCloserToHatchModeThanCargoMode()
+    public boolean isCloserToCargoModeThanHatchMode()
     {
         final double angle = getPosition();
-        return angle >= 45.0;  // TODO tell if angle is "ready" for this
+        return angle < kFullRangeInchesOrDegrees / 2.0;
     }
 
     public TestReport runFunctionalTest()

@@ -20,6 +20,7 @@ public class LinkOpenLoop extends Command
     protected void execute()
     {
         final boolean inAuto = DriverStation.getInstance().isAutonomous();
+
         if (!inAuto)  // TODO ConditionalCommand cancels requirements
         {
             final double speed = io.getLinkUp() - io.getLinkDown();

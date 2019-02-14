@@ -3,6 +3,7 @@ package org.wfrobotics.robot.commands.wrist;
 import org.wfrobotics.robot.config.IO;
 import org.wfrobotics.robot.subsystems.Wrist;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
 
 public class WristOpenLoop extends Command
@@ -17,7 +18,12 @@ public class WristOpenLoop extends Command
 
     protected void execute()
     {
-        wrist.setOpenLoop(io.getWristStick());
+        final boolean inAuto = DriverStation.getInstance().isAutonomous();
+
+        if (!inAuto)  // TODO ConditionalCommand cancels requirements
+        {
+            wrist.setOpenLoop(io.getWristStick());
+        }
     }
 
     protected boolean isFinished()
