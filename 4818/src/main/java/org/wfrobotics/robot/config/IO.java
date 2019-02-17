@@ -5,8 +5,8 @@ import org.wfrobotics.reuse.config.AutoFactory;
 import org.wfrobotics.reuse.config.ButtonFactory;
 import org.wfrobotics.reuse.config.ButtonFactory.TRIGGER;
 import org.wfrobotics.reuse.config.HerdJoystick;
-import org.wfrobotics.reuse.config.Xbox;
 import org.wfrobotics.reuse.config.IOConfig;
+import org.wfrobotics.reuse.config.Xbox;
 import org.wfrobotics.robot.commands.climb.Hug;
 import org.wfrobotics.robot.commands.elevator.ElevatorShift;
 import org.wfrobotics.robot.commands.intake.PopHatch;
@@ -24,6 +24,7 @@ public final class IO implements IOConfig
     private final HerdJoystick driverThrottle;  // TODO Refactor - Make Button from JoyStick instead?
     private final Joystick driverTurn;
     private final Xbox operator;
+
     /** Create and configure controls for Drive Team */
     private IO()
     {
@@ -91,7 +92,7 @@ public final class IO implements IOConfig
 
     public double getWristStick()
     {
-        return operator.getY(Hand.kLeft);
+        return -operator.getY(Hand.kLeft);
     }
 
     public boolean isElevatorOverrideRequested()

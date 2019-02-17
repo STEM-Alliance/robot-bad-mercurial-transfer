@@ -1,8 +1,8 @@
 package org.wfrobotics.robot.config;
 
-import org.wfrobotics.reuse.config.IRobotConfig;
 import java.util.Optional;
 
+import org.wfrobotics.reuse.config.IRobotConfig;
 import org.wfrobotics.reuse.config.RobotConfigPicker;
 import org.wfrobotics.reuse.config.TalonConfig.ClosedLoopConfig;
 import org.wfrobotics.reuse.config.TalonConfig.FollowerConfig;
@@ -34,7 +34,6 @@ public class RobotConfig implements TankConfigSupplier, IRobotConfig
 
         config.CLOSED_LOOP = new ClosedLoopConfig("Tank", new MasterConfig[] {
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
             // Right
             new MasterConfig(18, true, true, new FollowerConfig(17,false), new FollowerConfig(16, false)),
             // Left
@@ -84,7 +83,7 @@ public class RobotConfig implements TankConfigSupplier, IRobotConfig
 
         c.kClosedLoop = new ClosedLoopConfig("Lift", new MasterConfig[] {
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            new MasterConfig(10, false, true, new FollowerConfig(11, true, true),
+            new MasterConfig(10, true, false, new FollowerConfig(11, true, true),
                                             new FollowerConfig(12, true, true),
                                             new FollowerConfig(19, true, true)),
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +168,7 @@ public class RobotConfig implements TankConfigSupplier, IRobotConfig
 
         c.kClosedLoop = new ClosedLoopConfig("Wrist", new MasterConfig[] {
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            new MasterConfig(9, false, false)
+            new MasterConfig(9, true, false)
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         }, new Gains[] {
             new Gains("Motion Magic", 0, 0.0, 0.0000, 0.0, 1023.0 / kWristVelocityMax, 0, kWristVelocityCruise, kWristAcceleration),
