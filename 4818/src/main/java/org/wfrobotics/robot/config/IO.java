@@ -65,16 +65,21 @@ public final class IO implements EnhancedIO
 
         //----------------------- Intake --------------------------
         ButtonFactory.makeButton(operator, Xbox.BUTTON.X, TRIGGER.WHEN_PRESSED, new ScoreHatch());
+        ButtonFactory.makeButton(operator, Xbox.BUTTON.Y, TRIGGER.WHEN_PRESSED, new TurnToHeading(90) );
+
         ButtonFactory.makeButton(operator, Xbox.DPAD.UP, TRIGGER.WHEN_PRESSED, new CargoIn() );
         ButtonFactory.makeButton(operator, Xbox.DPAD.DOWN, TRIGGER.WHEN_PRESSED, new CargoOut(.75));
+
+        ButtonFactory.makeButton(operator, Xbox.BUTTON.BACK, TRIGGER.WHEN_PRESSED, new LinkToHeight(90) );
+
 
         //----------------------- System --------------------------
         ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.A, TRIGGER.WHEN_PRESSED, new SystemToHigh()); // top button on rocket
         ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.B, TRIGGER.WHEN_PRESSED, new SystemToMiddle()); // middle button on rocket
         ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.X, TRIGGER.WHEN_PRESSED, new SystemToLow()); // bottem button on rocket
         ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.LB, TRIGGER.WHEN_PRESSED, new SystemPickup()); // bottem button on breakout board
-        ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.Y, TRIGGER.WHEN_PRESSED, new DriveDistance(10.0 * 12.0)); // middle button on breakout board
-        ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.Y, TRIGGER.WHEN_PRESSED, new  DriveDistance(2.0 * 12.0)); // middle button on breakout board
+        ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.Y, TRIGGER.WHEN_PRESSED, new TurnToHeading(90)); // middle button on breakout board
+        ButtonFactory.makeButton(rocketPlate, Xbox.BUTTON.RB, TRIGGER.WHEN_PRESSED, new  DriveDistance(2.0 * 12.0)); // top button on breakout board
 
 
 
@@ -137,7 +142,7 @@ public final class IO implements EnhancedIO
 
     public double getTurn()
     {
-        return (driverTurn.getRawAxis(0) * 0.8);
+        return (driverTurn.getRawAxis(0) * 0.45);
     }
 
     public boolean getDriveQuickTurn()

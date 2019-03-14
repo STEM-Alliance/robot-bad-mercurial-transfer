@@ -7,6 +7,7 @@ import org.wfrobotics.reuse.subsystems.PositionBasedSubsystem;
 import org.wfrobotics.reuse.utilities.ConsoleLogger;
 import org.wfrobotics.robot.commands.elevator.ElevatorOpenLoop;
 import org.wfrobotics.robot.commands.elevator.ElevatorZeroThenOpenLoop;
+import org.wfrobotics.robot.config.PnuaticConfig;
 import org.wfrobotics.robot.config.RobotConfig;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -32,8 +33,8 @@ public class Elevator extends PositionBasedSubsystem
         return instance;
     }
 
-    private static final double kFeedForwardHasCargo = 0.15;  // Practice bot
-    private static final double kFeedForwardNoCargo = 0.15;  // Practice bot
+    private static final double kFeedForwardHasCargo = 0.0;  // Practice bot
+    private static final double kFeedForwardNoCargo = 0.0;  // Practice bot
     private static final double kInchesGroundToZero = 15.5;  // Practice bot
     private static final int kTickRateBrakeModeObserved = 0;  // TODO Tune
     private static final int kTickRateSlowEnough = kTickRateBrakeModeObserved + 200;  // TODO Tune
@@ -45,6 +46,7 @@ public class Elevator extends PositionBasedSubsystem
     {
         super(positionConfig);
         final RobotConfig config = RobotConfig.getInstance();
+        final PnuaticConfig pConfig = RobotConfig.getInstance().getPnumaticConfig();
 
         master.setSelectedSensorPosition(0, 0, 100);
         master.configOpenloopRamp(.15, 100);
@@ -59,7 +61,7 @@ public class Elevator extends PositionBasedSubsystem
             }
         }
 
-        shifter = new DoubleSolenoid(config.kAddressPCMShifter, config.kAddressSolenoidShifterF, config.kAddressSolenoidShifterB);
+        shifter = new DoubleSolenoid(pConfig.kAddressPCMGrippers, pConfig.kAddressSolenoidShifterF, pConfig.kAddressSolenoidShifterB);
 
         setShifter(false);
     }
