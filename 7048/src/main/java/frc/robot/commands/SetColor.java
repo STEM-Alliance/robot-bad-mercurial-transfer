@@ -7,23 +7,29 @@
 
 package frc.robot.commands;
 
+import frc.robot.reuse.hardware.lowleveldriver.BlinkinPatterns;
+import frc.robot.subsystems.ColorSensor;
 import frc.robot.subsystems.LedSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /**
  * An example command that uses an example subsystem.
  */
-public class SignalHuman extends CommandBase {
+public class SetColor extends CommandBase {
   private final LedSubsystem led;
+  private final ColorSensor colorSensor;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
+ * @param colorSensor
    */
-  public SignalHuman(LedSubsystem subsystem) {
+  public SetColor(LedSubsystem subsystem, ColorSensor colorSensor) {
     led = subsystem;
+    this.colorSensor = colorSensor;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
   }
@@ -36,8 +42,12 @@ public class SignalHuman extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // led.setColor();
+    led.setColor(BlinkinPatterns.PatternName.Color_Waves_Ocean_Palette);
     SmartDashboard.putString("Led", "value");
+    SmartDashboard.putNumber("Sensor Red", colorSensor.getColor().red);
+    SmartDashboard.putNumber("Sensor Green", colorSensor.getColor().green);
+    SmartDashboard.putNumber("Sensor Blue", colorSensor.getColor().blue);
+    
   }
 
   // Called once the command ends or is interrupted.

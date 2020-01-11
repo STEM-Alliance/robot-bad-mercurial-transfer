@@ -7,29 +7,27 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.reuse.hardware.Blinkin;
-import frc.robot.reuse.hardware.lowleveldriver.BlinkinPatterns.PatternName;
+import com.revrobotics.ColorSensorV3;
 
-public class LedSubsystem extends SubsystemBase {
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class ColorSensor extends SubsystemBase {
   /**
    * Creates a new ExampleSubsystem.
    */
-  Blinkin led;
-  public LedSubsystem() {
-    led = new Blinkin(0, PatternName.Color_1_Light_Chase);
+  public ColorSensor() {
+    colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
   }
-  
-  
-  public void setColor(PatternName color) {
-    led.setColor(color);
+  public Color getColor(){
+      return colorSensor.getColor(); 
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    
   }
-  public void off() {
-    led.off();
-  }
+    ColorSensorV3 colorSensor;
 }
